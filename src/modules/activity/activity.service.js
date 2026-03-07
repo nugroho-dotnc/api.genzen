@@ -2,6 +2,7 @@
 
 const prisma = require('../../config/prisma');
 const ApiError = require('../../utils/apiError');
+const { syncTodayStreak } = require('../gamification/gamification.service');
 
 // ─── Helpers ──────────────────────────────────────────────────────
 
@@ -130,6 +131,9 @@ const updateStatus = async (userId, activityId, status) => {
   // Map status -> log action
   const actionMap = { done: 'completed', skipped: 'skipped', pending: 'updated' };
   await createLog(userId, activityId, actionMap[status] || 'updated');
+
+  //ini buat gamifikasi, kalo statusnya done updateStreak
+  await syncTodayStreak(userId, activity.date);
 
   return updated;
 };

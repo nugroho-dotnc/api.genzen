@@ -47,15 +47,23 @@ model User {
   name         String
   email        String        @unique
   password     String
-  currentStreak    Int           @default(0)
-  longestStreak    Int           @default(0)
-  lastTaskCompletedAt DateTime?  
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   activities   Activity[]
   notes        Note[]
   activityLogs ActivityLog[]
   insights     Insight[]
+  gamification Gamification[]
+}
+
+model Gamification {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId         String    @unique @db.ObjectId
+  currentStreak  Int       @default(0)
+  longestStreak  Int       @default(0)
+  lastUpdateDate DateTime? // Tanggal terakhir user melanjutkan streak
+  
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Activity {
