@@ -740,6 +740,7 @@ Ambil data gamifikasi milik user (streak saat ini, streak terpanjang, dan tangga
     "lastUpdateDate": "2026-03-07T00:00:00.000Z"
   }
 }
+```
 
 **Log Actions**
 
