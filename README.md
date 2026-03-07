@@ -715,6 +715,7 @@ Ambil data jumlah aktivitas yang selesai (done) per hari selama 1 tahun terakhir
     }
   ]
 }
+```
 
 ```markdown
 ## Gamification
