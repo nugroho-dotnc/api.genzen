@@ -105,6 +105,7 @@ const update = async (userId, activityId, body) => {
   });
 
   await createLog(userId, activityId, 'updated');
+  await syncTodayStreak(userId, updated.date);
   return updated;
 };
 
@@ -133,7 +134,7 @@ const updateStatus = async (userId, activityId, status) => {
   await createLog(userId, activityId, actionMap[status] || 'updated');
 
   //ini buat gamifikasi, kalo statusnya done updateStreak
-  await syncTodayStreak(userId, activity.date);
+  await syncTodayStreak(userId, updated.date);
 
   return updated;
 };

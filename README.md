@@ -86,6 +86,7 @@ Responses Envelope:
 - [Activities](#activities)
 - [Notes](#notes)
 - [Activity Logs](#activity-logs)
+- [Gamification](#gamification)
 - [AI Parse](#ai-parse)
 - [Health](#health)
 - [Error Codes](#error-codes)
@@ -692,6 +693,52 @@ Ambil log activity milik user.
   ]
 }
 ```
+
+### GET `/activity-logs/heatmap`
+
+Ambil data jumlah aktivitas yang selesai (done) per hari selama 1 tahun terakhir. Sangat cocok digunakan untuk UI *Contribution Graph* atau *Heatmap*.
+
+**Response `200`**
+
+```json
+{
+  "success": true,
+  "message": "Heatmap data fetched successfully",
+  "data": [
+    {
+      "date": "2026-03-01",
+      "count": 2
+    },
+    {
+      "date": "2026-03-02",
+      "count": 5
+    }
+  ]
+}
+
+```markdown
+## Gamification
+
+> 🔒 Semua route gamification membutuhkan header `Authorization`.
+
+### GET `/gamification`
+
+Ambil data gamifikasi milik user (streak saat ini, streak terpanjang, dan tanggal terakhir update). Jika user belum memiliki data gamifikasi, sistem akan otomatis membuatkannya dengan nilai `0`.
+
+**Response `200`**
+
+```json
+{
+  "success": true,
+  "message": "Gamification data retrieved successfully",
+  "data": {
+    "id": "64f1a2b3c4d5e6f7a8b9c0d5",
+    "userId": "64f1a2b3c4d5e6f7a8b9c0d1",
+    "currentStreak": 3,
+    "longestStreak": 14,
+    "lastUpdateDate": "2026-03-07T00:00:00.000Z"
+  }
+}
 
 **Log Actions**
 

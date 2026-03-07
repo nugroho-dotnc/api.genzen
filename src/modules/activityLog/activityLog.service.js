@@ -20,21 +20,22 @@ const getHeatmap = async (userId) => {
   const oneYearAgo = new Date();
   oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
-  // Tarik semua log yang berstatus 'completed'
-  const logs = await prisma.activityLog.findMany({
+  // QUERY KE MODEL ACTIVITY LANGSUNG
+  // Tarik semua activity yang berstatus 'done' dan sesuai rentang waktu
+  const activities = await prisma.activity.findMany({
     where: {
       userId,
-      action: 'completed',
-      timestamp: { gte: oneYearAgo }
+      status: 'done', // Mencari status yang sudah selesai
+      date: { gte: oneYearAgo } // Berdasarkan tanggal dijadwalkannya activity
     },
-    select: { timestamp: true }, // Hanya ambil waktu agar ringan
+    select: { date: true }, // Hanya ambil waktu agar ringan
   });
 
-  // Hitung jumlah completed task per hari
+  // Hitung jumlah completed task per hari berdasarkan date di Activity
   const heatmapData = {};
-  logs.forEach(log => {
-    // Potong ISO string '2026-03-01T10:05:00.000Z' menjadi '2026-03-01'
-    const dateStr = log.timestamp.toISOString().split('T')[0];
+  activities.forEach(activity => {
+    // Potong ISO string '2026-03-01T00:00:00.000Z' menjadi '2026-03-01'
+    const dateStr = activity.date.toISOString().split('T')[0];
     
     if (heatmapData[dateStr]) {
       heatmapData[dateStr] += 1;
@@ -51,5 +52,6 @@ const getHeatmap = async (userId) => {
 
   return result;
 };
+
 
 module.exports = { list, getHeatmap };
