@@ -717,7 +717,6 @@ Ambil data jumlah aktivitas yang selesai (done) per hari selama 1 tahun terakhir
 }
 ```
 
-```markdown
 ## Gamification
 
 > 🔒 Semua route gamification membutuhkan header `Authorization`.
