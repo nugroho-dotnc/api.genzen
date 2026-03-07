@@ -8,5 +8,6 @@ const activityLogController = require('./activityLog.controller');
 router.use(auth);
 
 router.get('/', activityLogController.list);
+router.get('/heatmap', activityLogController.getHeatmap);
 
 module.exports = router;

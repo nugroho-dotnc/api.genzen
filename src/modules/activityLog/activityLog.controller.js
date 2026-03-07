@@ -13,4 +13,13 @@ const list = async (req, res, next) => {
   }
 };
 
-module.exports = { list };
+const getHeatmap = async (req, res, next) => {
+  try {
+    const data = await activityLogService.getHeatmap(req.user.id);
+    return sendSuccess(res, data, 'Heatmap data fetched successfully');
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { list, getHeatmap };
