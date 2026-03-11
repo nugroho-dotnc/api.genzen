@@ -106,8 +106,8 @@ const getSummary = async (userId, period) => {
 };
 
 /**
- * Get heatmap data — activity count per day for a user within a time period.
- * Returns an array of { date: "YYYY-MM-DD", count: N }.
+ * Get heatmap data per day for a user within a time period.
+ * Returns an array of { date: "YYYY-MM-DD", tasks_completed: N, focus_minutes: N }.
  *
  * @param {string} userId
  * @param {string} period
@@ -120,20 +120,41 @@ const getHeatmap = async (userId, period) => {
             userId,
             date: { gte, lte },
         },
-        select: { date: true },
+        select: {
+            date: true,
+            status: true,
+            type: true,
+            startTime: true,
+            endTime: true,
+        },
         orderBy: { date: 'asc' },
     });
 
     // Group by date string "YYYY-MM-DD"
-    const countMap = new Map();
+    const dayMap = new Map();
     for (const act of activities) {
         const dateStr = act.date.toISOString().split('T')[0];
-        countMap.set(dateStr, (countMap.get(dateStr) || 0) + 1);
+
+        if (!dayMap.has(dateStr)) {
+            dayMap.set(dateStr, { tasks_completed: 0, focus_minutes: 0 });
+        }
+
+        const day = dayMap.get(dateStr);
+
+        if (act.status === 'done') day.tasks_completed++;
+
+        if (act.type === 'schedule' && act.startTime && act.endTime) {
+            const start = parseTimeToMinutes(act.startTime);
+            const end = parseTimeToMinutes(act.endTime);
+            if (start !== null && end !== null && end > start) {
+                day.focus_minutes += end - start;
+            }
+        }
     }
 
     const result = [];
-    for (const [date, count] of countMap) {
-        result.push({ date, count });
+    for (const [date, stats] of dayMap) {
+        result.push({ date, ...stats });
     }
 
     return result;
