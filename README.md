@@ -87,6 +87,7 @@ Responses Envelope:
 - [Notes](#notes)
 - [Activity Logs](#activity-logs)
 - [Gamification](#gamification)
+- [Dashboard](#dashboard)
 - [AI Parse](#ai-parse)
 - [Health](#health)
 - [Error Codes](#error-codes)
@@ -752,7 +753,106 @@ Ambil data gamifikasi milik user (streak saat ini, streak terpanjang, dan tangga
 
 ---
 
-## AI Parse
+## Dashboard
+
+> 🔒 Semua route dashboard membutuhkan header `Authorization`.
+
+Endpoint dashboard menyediakan data agregat aktivitas pengguna yang dapat difilter berdasarkan rentang waktu (`period`).
+
+**Query Parameter `period`**
+
+| Nilai     | Rentang Waktu       |
+| --------- | ------------------- |
+| `today`   | Hari ini            |
+| `week`    | 7 hari terakhir     |
+| `month`   | 30 hari terakhir    |
+| `3month`  | 90 hari terakhir    |
+| `year`    | 365 hari (default)  |
+
+---
+
+### GET `/dashboard/summary`
+
+Ambil ringkasan statistik aktivitas pengguna: total activity, activity yang selesai, dan total focus time dari jadwal (`schedule`) yang memiliki `startTime` dan `endTime`.
+
+**Query Parameters**
+
+| Param    | Type   | Description                                   |
+| -------- | ------ | --------------------------------------------- |
+| `period` | string | Rentang waktu (`today`, `week`, `month`, `3month`, `year`) — default: `year` |
+
+**Contoh request:**
+
+```
+GET /api/dashboard/summary?period=week
+Authorization: Bearer <accessToken>
+```
+
+**Response `200`**
+
+```json
+{
+  "success": true,
+  "message": "Dashboard summary fetched successfully",
+  "data": {
+    "period": "week",
+    "totalActivities": 12,
+    "doneActivities": 8,
+    "focusTimeMinutes": 270,
+    "focusTimeHours": 4.5
+  }
+}
+```
+
+**Field Keterangan**
+
+| Field               | Tipe    | Keterangan                                                      |
+| ------------------- | ------- | --------------------------------------------------------------- |
+| `period`            | string  | Periode yang dipakai                                            |
+| `totalActivities`   | integer | Jumlah semua activity dalam periode                             |
+| `doneActivities`    | integer | Jumlah activity dengan status `done`                            |
+| `focusTimeMinutes`  | integer | Total durasi (menit) activity `schedule` yang punya jam         |
+| `focusTimeHours`    | float   | Konversi `focusTimeMinutes` ke jam (2 desimal)                 |
+
+---
+
+### GET `/dashboard/heatmap`
+
+Ambil data jumlah activity per hari dalam rentang waktu tertentu. Cocok untuk UI *Activity Tracker / Contribution Graph*.
+
+**Query Parameters**
+
+| Param    | Type   | Description                                   |
+| -------- | ------ | --------------------------------------------- |
+| `period` | string | Rentang waktu (`today`, `week`, `month`, `3month`, `year`) — default: `year` |
+
+**Contoh request:**
+
+```
+GET /api/dashboard/heatmap?period=year
+Authorization: Bearer <accessToken>
+```
+
+**Response `200`**
+
+```json
+{
+  "success": true,
+  "message": "Heatmap data fetched successfully",
+  "data": [
+    { "date": "2026-01-05", "count": 3 },
+    { "date": "2026-01-06", "count": 1 },
+    { "date": "2026-02-14", "count": 5 },
+    { "date": "2026-03-11", "count": 2 }
+  ]
+}
+```
+
+> Hanya tanggal yang memiliki activity yang akan muncul dalam array (tanggal tanpa activity tidak ditampilkan). Data diurutkan berdasarkan tanggal secara ascending.
+
+---
+
+
 
 > 🔒 Membutuhkan header `Authorization`.
 

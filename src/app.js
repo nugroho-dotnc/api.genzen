@@ -12,7 +12,8 @@ const activityRoutes = require('./modules/activity/activity.routes');
 const noteRoutes = require('./modules/note/note.routes');
 const activityLogRoutes = require('./modules/activityLog/activityLog.routes');
 const aiRoutes = require('./modules/ai/ai.routes');
-const gamificationRoutes = require('./modules/gamification/gamification.routes')
+const gamificationRoutes = require('./modules/gamification/gamification.routes');
+const dashboardRoutes = require('./modules/dashboard/dashboard.routes');
 const { errorHandler } = require('./middlewares/error.middleware');
 
 const app = express();
@@ -44,6 +45,7 @@ app.use('/api/notes', noteRoutes);
 app.use('/api/activity-logs', activityLogRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/gamification', gamificationRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // ─── 404 Handler ──────────────────────────────────────────────────
 app.use((req, res) => {
