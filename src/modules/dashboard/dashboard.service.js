@@ -153,8 +153,9 @@ const getHeatmap = async (userId, period) => {
     }
 
     const result = [];
+    let id = 1;
     for (const [date, stats] of dayMap) {
-        result.push({ date, ...stats });
+        result.push({ id: id++, date, ...stats });
     }
 
     return result;
