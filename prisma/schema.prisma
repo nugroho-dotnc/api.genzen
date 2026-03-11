@@ -1,0 +1,118 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum ActivityType {
+  task
+  schedule
+}
+
+enum ActivityStatus {
+  pending
+  done
+  skipped
+}
+
+enum Priority {
+  low
+  medium
+  high
+}
+
+enum Source {
+  ai
+  manual
+}
+
+enum LogAction {
+  created
+  updated
+  completed
+  skipped
+}
+
+enum InsightType {
+  productivity
+  habit
+  time_pattern
+}
+
+model User {
+  id           String        @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  email        String        @unique
+  password     String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  activities   Activity[]
+  notes        Note[]
+  activityLogs ActivityLog[]
+  insights     Insight[]
+  gamification Gamification[]
+}
+
+model Gamification {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId         String    @unique @db.ObjectId
+  currentStreak  Int       @default(0)
+  longestStreak  Int       @default(0)
+  lastUpdateDate DateTime? // Tanggal terakhir user melanjutkan streak
+  
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Activity {
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String         @db.ObjectId
+  title        String
+  description  String?
+  type         ActivityType
+  date         DateTime
+  startTime    String?
+  endTime      String?
+  status       ActivityStatus @default(pending)
+  priority     Priority?
+  linkUrl      String?
+  source       Source
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  user         User           @relation(fields: [userId], references: [id])
+  activityLogs ActivityLog[]
+}
+
+model Note {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String    @db.ObjectId
+  title       String
+  content     String
+  isPinned    Boolean   @default(false)
+  relatedDate DateTime?
+  source      Source
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id])
+}
+
+model ActivityLog {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  activityId String    @db.ObjectId
+  userId     String    @db.ObjectId
+  action     LogAction
+  timestamp  DateTime  @default(now())
+  activity   Activity  @relation(fields: [activityId], references: [id])
+  user       User      @relation(fields: [userId], references: [id])
+}
+
+model Insight {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String      @db.ObjectId
+  type        InsightType
+  content     String
+  generatedAt DateTime    @default(now())
+  user        User        @relation(fields: [userId], references: [id])
+}
