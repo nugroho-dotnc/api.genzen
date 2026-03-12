@@ -5,8 +5,8 @@ const { sendSuccess } = require('../../utils/response');
 
 const list = async (req, res, next) => {
   try {
-    const { isPinned, relatedDate } = req.query;
-    const data = await noteService.list(req.user.id, { isPinned, relatedDate });
+    const { isPinned, relatedDate, categoryId } = req.query;
+    const data = await noteService.list(req.user.id, { isPinned, relatedDate, categoryId });
     return sendSuccess(res, data);
   } catch (err) {
     next(err);

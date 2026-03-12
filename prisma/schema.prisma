@@ -54,6 +54,7 @@ model User {
   activityLogs ActivityLog[]
   insights     Insight[]
   gamification Gamification[]
+  categories   Category[]
 }
 
 model Gamification {
@@ -88,14 +89,32 @@ model Activity {
 model Note {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
   userId      String    @db.ObjectId
+  categoryId  String?   @db.ObjectId
   title       String
   content     String
+  color       String?
   isPinned    Boolean   @default(false)
   relatedDate DateTime?
   source      Source
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   user        User      @relation(fields: [userId], references: [id])
+  category    Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+}
+
+model Category {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  name      String
+  color     String?  // Opsional: Jika warna ingin diikat ke kategori
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notes     Note[]
+
+  // Constraint ini memastikan satu user tidak bisa punya 2 kategori dengan nama yang sama
+  @@unique([userId, name]) 
 }
 
 model ActivityLog {

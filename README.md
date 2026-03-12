@@ -8,7 +8,7 @@ The backend of D-Planner is a robust Node.js API built with Express, featuring A
 
 - **Runtime**: Node.js
 - **Framework**: Express.js
-- **Database**: MySQL / PostgreSQL (via Prisma)
+- **Database**: MySQL/PostgreSQL (via Prisma)
 - **AI**: Google Gemini (generative-ai)
 - **Authentication**: JWT & Bcrypt.js
 - **Validation**: Express-Validator
@@ -83,8 +83,9 @@ Responses Envelope:
 ## Table of Contents
 
 - [Auth](#auth)
-- [Activities](#activities)
+- [Categories](#categories)
 - [Notes](#notes)
+- [Activities](#activities)
 - [Activity Logs](#activity-logs)
 - [Gamification](#gamification)
 - [Dashboard](#dashboard)
@@ -487,7 +488,147 @@ Nilai valid: `pending` | `done` | `skipped`
 
 ---
 
-## Notes
+## Categories
+
+> 🔒 Semua route category membutuhkan header `Authorization`.
+
+### GET `/categories`
+
+List semua kategori milik user yang sedang login.
+
+**Response `200`**
+
+```json
+{
+  "success": true,
+  "message": "Success",
+  "data": [
+    {
+      "id": "64f1a2b3c4d5e6f7a8b9c0d6",
+      "userId": "64f1a2b3c4d5e6f7a8b9c0d1",
+      "name": "Work",
+      "color": "#FF5733",
+      "createdAt": "2026-02-22T00:00:00.000Z",
+      "updatedAt": "2026-02-22T00:00:00.000Z"
+    }
+  ]
+}
+```
+
+### POST `/categories`
+
+Buat kategori baru.
+
+**Form Fill Example**
+
+| Field  | Input Type | Contoh Nilai |
+| ------ | ---------- | ------------ |
+| `name` | text       | `Work`       |
+| `color`| text       | `#FF5733`    |
+
+**Field Rules**
+
+| Field  | Required | Type   | Nilai          |
+| ------ | -------- | ------ | -------------- |
+| `name` | ✅       | string | —              |
+| `color`| ❌       | string | Hex color code |
+
+**Body (JSON)**
+
+```json
+{
+  "name": "Work",
+  "color": "#FF5733"
+}
+```
+
+**Response `201`**
+
+```json
+{
+  "success": true,
+  "message": "Category created",
+  "data": {
+    "id": "64f1a2b3c4d5e6f7a8b9c0d6",
+    "userId": "64f1a2b3c4d5e6f7a8b9c0d1",
+    "name": "Work",
+    "color": "#FF5733",
+    "createdAt": "2026-02-22T00:22:00.000Z",
+    "updatedAt": "2026-02-22T00:22:00.000Z"
+  }
+}
+```
+
+**Error Responses**
+
+| Status | Code                | Penyebab                          |
+| ------ | ------------------- | --------------------------------- |
+| `400`  | `VALIDATION_ERROR`  | `name` kosong                     |
+| `400`  | `VALIDATION_ERROR`  | Nama kategori sudah ada untuk user ini |
+
+### GET `/categories/:id`
+
+Ambil satu kategori berdasarkan ID.
+
+**Response `200`**
+
+```json
+{
+  "success": true,
+  "message": "Success",
+  "data": {
+    "id": "64f1a2b3c4d5e6f7a8b9c0d6",
+    "userId": "64f1a2b3c4d5e6f7a8b9c0d1",
+    "name": "Work",
+    "color": "#FF5733",
+    "...": "..."
+  }
+}
+```
+
+### PUT `/categories/:id`
+
+Update kategori (partial — kirim hanya field yang mau diubah).
+
+**Body (JSON)**
+
+```json
+{
+  "name": "Personal",
+  "color": "#33FF57"
+}
+```
+
+**Response `200`**
+
+```json
+{
+  "success": true,
+  "message": "Category updated",
+  "data": {
+    "id": "64f1a2b3c4d5e6f7a8b9c0d6",
+    "name": "Personal",
+    "color": "#33FF57",
+    "...": "..."
+  }
+}
+```
+
+### DELETE `/categories/:id`
+
+Hapus kategori. Jika ada notes yang menggunakan kategori ini, mereka akan kehilangan referensi kategori (set null).
+
+**Response `200`**
+
+```json
+{
+  "success": true,
+  "message": "Category deleted",
+  "data": null
+}
+```
+
+---
 
 > 🔒 Semua route note membutuhkan header `Authorization`.
 
@@ -500,6 +641,7 @@ List semua catatan milik user.
 | Param         | Type              | Description                        |
 | ------------- | ----------------- | ---------------------------------- |
 | `isPinned`    | `true` \| `false` | Filter berdasarkan pin             |
+| `categoryId`  | string            | Filter berdasarkan kategori        |
 | `relatedDate` | `YYYY-MM-DD`      | Filter berdasarkan tanggal terkait |
 
 **Response `200`**
@@ -517,6 +659,9 @@ List semua catatan milik user.
       "isPinned": false,
       "relatedDate": "2026-02-22T00:00:00.000Z",
       "source": "manual",
+      "categoryId": null,
+      "color": null,
+      "category": null,
       "createdAt": "2026-02-22T00:00:00.000Z",
       "updatedAt": "2026-02-22T00:00:00.000Z"
     }
@@ -538,6 +683,8 @@ Buat catatan baru.
 | `content`     | textarea   | `Bahas fitur notifikasi, target selesai minggu depan. PIC: Andi` |
 | `isPinned`    | checkbox   | `false`                                                          |
 | `relatedDate` | date       | `2026-02-22`                                                     |
+| `categoryId`  | select     | `64f1a2b3c4d5e6f7a8b9c0d6`                                       |
+| `color`       | text       | `#FF5733`                                                        |
 | `source`      | hidden     | `manual`                                                         |
 
 **Form Fill Example — Catatan penting (pin)**
@@ -559,6 +706,8 @@ Buat catatan baru.
 | `source`      | ✅       | `ai` \| `manual`          |
 | `isPinned`    | ❌       | boolean (default `false`) |
 | `relatedDate` | ❌       | `YYYY-MM-DD`              |
+| `categoryId`  | ❌       | string (UUID)             |
+| `color`       | ❌       | string (hex color code)   |
 
 **Body (JSON)**
 
@@ -568,6 +717,8 @@ Buat catatan baru.
   "content": "Bahas fitur notifikasi, target selesai minggu depan. PIC: Andi",
   "isPinned": false,
   "relatedDate": "2026-02-22",
+  "categoryId": "64f1a2b3c4d5e6f7a8b9c0d6",
+  "color": "#FF5733",
   "source": "manual"
 }
 ```
@@ -586,6 +737,13 @@ Buat catatan baru.
     "isPinned": false,
     "relatedDate": "2026-02-22T00:00:00.000Z",
     "source": "manual",
+    "categoryId": "64f1a2b3c4d5e6f7a8b9c0d6",
+    "color": "#FF5733",
+    "category": {
+      "id": "64f1a2b3c4d5e6f7a8b9c0d6",
+      "name": "Work",
+      "color": "#FF5733"
+    },
     "createdAt": "2026-02-22T00:22:00.000Z",
     "updatedAt": "2026-02-22T00:22:00.000Z"
   }
