@@ -18,6 +18,17 @@ const assertOwnership = async (userId, activityId) => {
   return activity;
 };
 
+const toggle = async (activityId) => {
+  const activity = await prisma.activity.findUnique({ where: { id: activityId } });
+  if (!activity) throw new ApiError(404, 'NOT_FOUND', 'Activity not Found');
+
+  const updated = await prisma.activity.update({
+    where: { id: activityId },
+    data: { status: activity.status === 'done' ? 'pending' : 'done' },
+  });
+  return updated;
+}
+
 const createLog = (userId, activityId, action) =>
   prisma.activityLog.create({ data: { userId, activityId, action } });
 
@@ -47,12 +58,12 @@ const create = async (userId, body) => {
 
   // ─── Defaults for optional-but-required-in-schema fields ──────────
   const source = VALID_SOURCES.includes(body.source) ? body.source : 'manual';
-  const date   = body.date ? new Date(body.date) : new Date(new Date().toDateString()); // today UTC midnight
+  const date = body.date ? new Date(body.date) : new Date(new Date().toDateString()); // today UTC midnight
 
   if (!title) throw new ApiError(400, 'VALIDATION_ERROR', 'title is required');
-  if (!type)  throw new ApiError(400, 'VALIDATION_ERROR', 'type is required');
-  if (!VALID_TYPES.includes(type))  throw new ApiError(400, 'VALIDATION_ERROR', 'Invalid activity type');
-  if (status && !VALID_STATUSES.includes(status))   throw new ApiError(400, 'VALIDATION_ERROR', 'Invalid status');
+  if (!type) throw new ApiError(400, 'VALIDATION_ERROR', 'type is required');
+  if (!VALID_TYPES.includes(type)) throw new ApiError(400, 'VALIDATION_ERROR', 'Invalid activity type');
+  if (status && !VALID_STATUSES.includes(status)) throw new ApiError(400, 'VALIDATION_ERROR', 'Invalid status');
   if (priority && !VALID_PRIORITIES.includes(priority)) throw new ApiError(400, 'VALIDATION_ERROR', 'Invalid priority');
 
   const activity = await prisma.activity.create({
@@ -62,11 +73,11 @@ const create = async (userId, body) => {
       description,
       type,
       date,
-      startTime:  startTime  || null,
-      endTime:    endTime    || null,
-      status:     VALID_STATUSES.includes(status) ? status : 'pending',
-      priority:   priority   || null,
-      linkUrl:    linkUrl    || null,
+      startTime: startTime || null,
+      endTime: endTime || null,
+      status: VALID_STATUSES.includes(status) ? status : 'pending',
+      priority: priority || null,
+      linkUrl: linkUrl || null,
       source,
     },
   });

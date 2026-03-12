@@ -59,4 +59,13 @@ const updateStatus = async (req, res, next) => {
   }
 };
 
-module.exports = { list, create, getOne, update, remove, updateStatus };
+const toggle = async (req, res, next) => {
+  try {
+    const data = await activityService.toggle(req.user.id, req.params.id);
+    return sendSuccess(res, data, 'Activity toggled');
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { list, create, getOne, update, remove, updateStatus, toggle };

@@ -14,5 +14,6 @@ router.get('/:id', activityController.getOne);
 router.put('/:id', activityController.update);
 router.delete('/:id', activityController.remove);
 router.patch('/:id/status', activityController.updateStatus);
+router.patch('/:id/toggle', activityController.toggle);
 
 module.exports = router;
