@@ -61,7 +61,7 @@ const updateStatus = async (req, res, next) => {
 
 const toggle = async (req, res, next) => {
   try {
-    const data = await activityService.toggle(req.user.id, req.params.id);
+    const data = await activityService.toggle(req.params.id);
     return sendSuccess(res, data, 'Activity toggled');
   } catch (err) {
     next(err);

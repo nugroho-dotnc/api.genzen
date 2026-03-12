@@ -21,7 +21,6 @@ const assertOwnership = async (userId, activityId) => {
 const toggle = async (activityId) => {
   const activity = await prisma.activity.findUnique({ where: { id: activityId } });
   if (!activity) throw new ApiError(404, 'NOT_FOUND', 'Activity not Found');
-
   const updated = await prisma.activity.update({
     where: { id: activityId },
     data: { status: activity.status === 'done' ? 'pending' : 'done' },
@@ -150,4 +149,4 @@ const updateStatus = async (userId, activityId, status) => {
   return updated;
 };
 
-module.exports = { list, create, getOne, update, remove, updateStatus };
+module.exports = { list, create, getOne, update, remove, updateStatus, toggle };
