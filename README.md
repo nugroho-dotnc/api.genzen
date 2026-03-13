@@ -83,6 +83,7 @@ Responses Envelope:
 ## Table of Contents
 
 - [Auth](#auth)
+- [Users](#users)
 - [Categories](#categories)
 - [Notes](#notes)
 - [Activities](#activities)
@@ -248,6 +249,53 @@ Logout. Tidak butuh body — cukup kirim request lalu hapus token di sisi client
   "data": null
 }
 ```
+
+---
+
+## Users
+
+> 🔒 Semua route user membutuhkan header `Authorization`.
+
+### PATCH `/users/change-password`
+
+Ubah password user.
+
+**Form Fill Example**
+
+| Field                | Input Type | Contoh Nilai   |
+| -------------------- | ---------- | -------------- |
+| `oldPassword`        | password   | `Rahasia123`   |
+| `newPassword`        | password   | `BaruRahasia`  |
+| `confirmNewPassword` | password   | `BaruRahasia`  |
+
+**Body (JSON)**
+
+```json
+{
+  "oldPassword": "Rahasia123",
+  "newPassword": "BaruRahasia",
+  "confirmNewPassword": "BaruRahasia"
+}
+```
+
+**Response `200`**
+
+```json
+{
+  "success": true,
+  "message": "Password berhasil diubah",
+  "data": null
+}
+```
+
+**Error Responses**
+
+| Status | Code                  | Penyebab                          |
+| ------ | --------------------- | --------------------------------- |
+| `400`  | `VALIDATION_ERROR`    | Field kosong atau password kurang dari 8 karakter |
+| `400`  | `PASSWORD_MISMATCH`   | newPassword dan confirmNewPassword tidak sama |
+| `400`  | `INVALID_CREDENTIALS` | oldPassword salah                 |
+| `404`  | `NOT_FOUND`           | User tidak ditemukan              |
 
 ---
 
