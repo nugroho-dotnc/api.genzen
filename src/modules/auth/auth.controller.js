@@ -41,4 +41,6 @@ const logout = async (req, res, next) => {
   }
 };
 
-module.exports = { register, login, refreshToken, logout };
+
+module.exports = { register, login, refreshToken, logout}; 
+
