@@ -3,9 +3,9 @@
 require('dotenv').config();
 
 const required = [
-  'DATABASE_URL', 
-  'JWT_SECRET', 
-  'JWT_REFRESH_SECRET', 
+  'DATABASE_URL',
+  'JWT_SECRET',
+  'JWT_REFRESH_SECRET',
   'GEMINI_API_KEY'
 ];
 
@@ -24,6 +24,6 @@ module.exports = {
   JWT_ACCESS_EXPIRY: process.env.JWT_ACCESS_EXPIRY || '15m',
   JWT_REFRESH_EXPIRY: process.env.JWT_REFRESH_EXPIRY || '7d',
   GEMINI_API_KEY: process.env.GEMINI_API_KEY,
-  GEMINI_MODEL: process.env.GEMINI_MODEL || 'gemini-1.5-flash',
+  GEMINI_MODEL: process.env.GEMINI_MODEL || 'gemini-2.5-flash-lite',
   NODE_ENV: process.env.NODE_ENV || 'development',
 };
