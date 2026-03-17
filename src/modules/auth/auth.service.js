@@ -51,7 +51,20 @@ const register = async ({ name, email, password, confirmPassword }) => {
   const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
   const user = await prisma.user.create({
-    data: { name, email, password: hashedPassword },
+    data: { 
+      name, 
+      email, 
+      password: hashedPassword,
+      categories: {
+        create: [
+          { name: 'Personal', color: '#3B82F6' }, // Warna Biru 
+          { name: 'Work', color: '#EF4444' },     // Warna Merah 
+          { name: 'Learning', color: '#10B981' }, // Warna Hijau 
+          { name: 'Finance', color: '#F59E0B' }   // Warna Kuning/Oranye 
+        ]
+      }
+
+     },
   });
 
   const accessToken = generateAccessToken(user);
