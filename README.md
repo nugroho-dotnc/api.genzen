@@ -299,6 +299,95 @@ Ubah password user.
 
 ---
 
+### GET `/users/me`
+
+Ambil data profil user yang sedang login.
+
+**Response `200`**
+
+```json
+{
+  "success": true,
+  "message": "Profil berhasil diambil",
+  "data": {
+    "id": "64f1a2b3c4d5e6f7a8b9c0d1",
+    "name": "Budi Santoso",
+    "email": "budi@example.com",
+    "createdAt": "2026-02-22T00:00:00.000Z",
+    "updatedAt": "2026-02-22T00:00:00.000Z"
+  }
+}
+```
+
+---
+
+### PUT `/users/me`
+
+Update profil user (partial — kirim hanya field yang mau diubah).
+
+**Form Fill Example**
+
+| Field  | Input Type | Contoh Nilai         |
+| ------ | ---------- | -------------------- |
+| `name` | text       | `Budi Santoso Baru`  |
+| `email`| email      | `budi.baru@example.com` |
+
+**Body (JSON)**
+
+```json
+{
+  "name": "Budi Santoso Baru",
+  "email": "budi.baru@example.com"
+}
+```
+
+**Response `200`**
+
+```json
+{
+  "success": true,
+  "message": "Profil berhasil diperbarui",
+  "data": {
+    "id": "64f1a2b3c4d5e6f7a8b9c0d1",
+    "name": "Budi Santoso Baru",
+    "email": "budi.baru@example.com",
+    "createdAt": "2026-02-22T00:00:00.000Z",
+    "updatedAt": "2026-02-22T00:00:00.000Z"
+  }
+}
+```
+
+**Error Responses**
+
+| Status | Code             | Penyebab                          |
+| ------ | ---------------- | --------------------------------- |
+| `409`  | `CONFLICT`       | Email sudah digunakan oleh pengguna lain |
+| `404`  | `NOT_FOUND`      | User tidak ditemukan              |
+
+---
+
+### DELETE `/users/me`
+
+Hapus akun user beserta semua data terkait (activities, notes, dll.).
+
+**Response `200`**
+
+```json
+{
+  "success": true,
+  "message": "Akun beserta semua data berhasil dihapus",
+  "data": null
+}
+```
+
+**Error Responses**
+
+| Status | Code             | Penyebab             |
+| ------ | ---------------- | -------------------- |
+| `404`  | `NOT_FOUND`      | User tidak ditemukan |
+
+---
+
 ## Activities
 
 > 🔒 Semua route activity membutuhkan header `Authorization`.

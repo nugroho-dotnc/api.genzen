@@ -82,7 +82,7 @@ model Activity {
   source       Source
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
-  user         User           @relation(fields: [userId], references: [id])
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   activityLogs ActivityLog[]
 }
 
@@ -98,7 +98,7 @@ model Note {
   source      Source
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  user        User      @relation(fields: [userId], references: [id])
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   category    Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 }
 
@@ -123,8 +123,10 @@ model ActivityLog {
   userId     String    @db.ObjectId
   action     LogAction
   timestamp  DateTime  @default(now())
-  activity   Activity  @relation(fields: [activityId], references: [id])
-  user       User      @relation(fields: [userId], references: [id])
+
+  activity   Activity  @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Insight {
@@ -133,5 +135,5 @@ model Insight {
   type        InsightType
   content     String
   generatedAt DateTime    @default(now())
-  user        User        @relation(fields: [userId], references: [id])
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

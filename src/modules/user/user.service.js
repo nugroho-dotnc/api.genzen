@@ -43,4 +43,49 @@ const changePassword = async (userId, { oldPassword, newPassword, confirmNewPass
   return true;
 };
 
-module.exports = { changePassword };
+// ─── Fitur CRUD Baru ──────────────────────────────────────────────
+
+const getProfile = async (userId) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    // Jangan return password ke frontend
+    select: { id: true, name: true, email: true, createdAt: true, updatedAt: true },
+  });
+
+  if (!user) throw new ApiError(404, 'NOT_FOUND', 'User tidak ditemukan');
+  return user;
+};
+
+const updateProfile = async (userId, body) => {
+  const { name, email } = body;
+
+  // Jika user mencoba mengubah email, pastikan email tidak bentrok dengan user lain
+  if (email) {
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing && existing.id !== userId) {
+      throw new ApiError(409, 'CONFLICT', 'Email sudah digunakan oleh pengguna lain');
+    }
+  }
+
+  const updatedUser = await prisma.user.update({
+    where: { id: userId },
+    data: {
+      ...(name && { name }),
+      ...(email && { email }),
+    },
+    select: { id: true, name: true, email: true, createdAt: true, updatedAt: true },
+  });
+
+  return updatedUser;
+};
+
+const deleteAccount = async (userId) => {
+  // Prisma akan otomatis menghapus semua activities, notes, logs, dll milik user ini!
+  await prisma.user.delete({ 
+    where: { id: userId } 
+  });
+
+  return true;
+};
+
+module.exports = { changePassword, getProfile, updateProfile, deleteAccount };
