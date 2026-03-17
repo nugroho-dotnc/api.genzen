@@ -98,7 +98,6 @@ model Note {
   source      Source
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
   user        User      @relation(fields: [userId], references: [id])
   category    Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 }
@@ -110,7 +109,6 @@ model Category {
   color     String?  // Opsional: Jika warna ingin diikat ke kategori
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  deletedAt DateTime?
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   notes     Note[]
