@@ -106,6 +106,7 @@ const togglePin = async (userId, noteId) => {
   return prisma.note.update({
     where: { id: noteId },
     data: { isPinned: !note.isPinned },
+    include: { category: true }
   });
 };
 
