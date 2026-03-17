@@ -7,7 +7,7 @@ const ApiError = require('../../utils/apiError');
 
 const assertOwnership = async (userId, categoryId) => {
   const category = await prisma.category.findUnique({ where: { id: categoryId } });
-  if (!category) throw new ApiError(404, 'NOT_FOUND', 'Category not found');
+  if (!category || category.deletedAt) throw new ApiError(404, 'NOT_FOUND', 'Category not found');
   if (category.userId !== userId) throw new ApiError(403, 'FORBIDDEN', 'Access denied');
   return category;
 };
@@ -16,7 +16,7 @@ const assertOwnership = async (userId, categoryId) => {
 
 const list = async (userId) => {
   return prisma.category.findMany({
-    where: { userId },
+    where: { userId, deletedAt: null },
     orderBy: { createdAt: 'desc' }, // Mengurutkan dari yang terbaru
   });
 };
@@ -71,11 +71,17 @@ const update = async (userId, categoryId, body) => {
 };
 
 const remove = async (userId, categoryId) => {
-  await assertOwnership(userId, categoryId);
+  const category = await assertOwnership(userId, categoryId);
 
   // Jika relasi ke Note diset onDelete: SetNull, notes tidak akan terhapus.
   // Jika diset onDelete: Cascade, notes yang pakai kategori ini otomatis terhapus.
-  await prisma.category.delete({ where: { id: categoryId } });
+  await prisma.category.update({ 
+    where: { id: categoryId },
+    data: { 
+      deletedAt: new Date(),
+      name: `${category.name}_deleted_${Date.now()}` // Modifying name allows reusing the generic name for new categories since there is a unique constraint on [userId, name]
+    } 
+  });
 };
 
 module.exports = { list, create, getOne, update, remove };

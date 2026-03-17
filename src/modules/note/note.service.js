@@ -7,7 +7,7 @@ const VALID_SOURCES = ['ai', 'manual'];
 
 const assertOwnership = async (userId, noteId) => {
   const note = await prisma.note.findUnique({ where: { id: noteId } });
-  if (!note) throw new ApiError(404, 'NOT_FOUND', 'Note not found');
+  if (!note || note.deletedAt) throw new ApiError(404, 'NOT_FOUND', 'Note not found');
   if (note.userId !== userId) throw new ApiError(403, 'FORBIDDEN', 'Access denied');
   return note;
 };
@@ -16,13 +16,13 @@ const assertOwnership = async (userId, noteId) => {
 const validateCategoryOwnership = async (userId, categoryId) => {
   if (!categoryId) return;
   const category = await prisma.category.findUnique({ where: { id: categoryId } });
-  if (!category || category.userId !== userId) {
+  if (!category || category.userId !== userId || category.deletedAt) {
     throw new ApiError(400, 'VALIDATION_ERROR', 'Invalid category ID');
   }
 };
 
 const list = async (userId, filters = {}) => {
-  const where = { userId };
+  const where = { userId, deletedAt: null };
   if (filters.isPinned !== undefined) where.isPinned = filters.isPinned === 'true';
   if (filters.categoryId) where.categoryId = filters.categoryId;
   if (filters.relatedDate) {
@@ -31,8 +31,10 @@ const list = async (userId, filters = {}) => {
     nextDay.setDate(nextDay.getDate() + 1);
     where.relatedDate = { gte: day, lt: nextDay };
   }
-  return prisma.note.findMany({ where, orderBy: [{ isPinned: 'desc' }, { createdAt: 'desc' }],
-  include: { category: true } });
+  return prisma.note.findMany({
+    where, orderBy: [{ isPinned: 'desc' }, { createdAt: 'desc' }],
+    include: { category: true }
+  });
 };
 
 const create = async (userId, body) => {
@@ -72,7 +74,7 @@ const getOne = async (userId, noteId) => {
 
 const update = async (userId, noteId, body) => {
   await assertOwnership(userId, noteId);
- // Ekstrak categoryId dan color
+  // Ekstrak categoryId dan color
   const { title, content, isPinned, relatedDate, categoryId, color } = body;
 
   // Validasi kategori baru jika user mencoba mengubah kategorinya
@@ -96,7 +98,10 @@ const update = async (userId, noteId, body) => {
 
 const remove = async (userId, noteId) => {
   await assertOwnership(userId, noteId);
-  return prisma.note.delete({ where: { id: noteId } });
+  return prisma.note.update({ 
+    where: { id: noteId },
+    data: { deletedAt: new Date() }
+  });
 };
 
 const togglePin = async (userId, noteId) => {
